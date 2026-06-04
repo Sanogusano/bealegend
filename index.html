@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Reto Penalti · Monastery</title>
+<style>
+  :root{
+    --bg:#08080a; --bg2:#0e0e11;
+    --surface:#141417; --surface2:#1a1a1e;
+    --line:#28282d; --line2:#34343b;
+    --text:#f3f3f5; --muted:#9a9aa3; --muted2:#5f5f68;
+    --silver1:#ffffff; --silver2:#cfcfd6;
+    --good:#3ad6a0; --bad:#f0566c;
+    --radius:16px;
+    --shadow:0 26px 60px -22px rgba(0,0,0,.8);
+    --font:"Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:var(--font);color:var(--text);
+    background:radial-gradient(1100px 620px at 50% -12%, rgba(255,255,255,.06), transparent 55%),linear-gradient(180deg,var(--bg),var(--bg2));
+    background-attachment:fixed;min-height:100%;display:flex;align-items:flex-start;justify-content:center;
+    padding:22px 16px 70px;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  .app{width:100%;max-width:760px;position:relative;z-index:1}
+  .tnum{font-variant-numeric:tabular-nums;font-weight:700}
+  .brand{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+  .brandlogo{height:30px;width:auto;display:block;flex:0 0 auto}
+  .brandsep{width:1px;height:28px;background:var(--line2);flex:0 0 auto}
+  .crest{width:44px;height:44px;border-radius:11px;flex:0 0 auto;display:grid;place-items:center;
+    background:linear-gradient(160deg,#fff,#d7d7dc);box-shadow:0 8px 22px -8px rgba(255,255,255,.25)}
+  .crest svg{width:24px;height:24px}
+  .brand h1{font-size:18px;font-weight:700;letter-spacing:.14em}
+  .brand .sub{font-size:10.5px;color:var(--muted);font-weight:600;letter-spacing:.34em;margin-top:2px}
+  .card{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .pad{padding:22px}
+  .hero{padding:32px 24px 26px;text-align:center}
+  .hero .kicker{font-size:10.5px;letter-spacing:.36em;color:var(--muted);font-weight:700}
+  .hero h2{font-size:clamp(40px,11vw,58px);font-weight:800;letter-spacing:-.02em;line-height:.95;margin:12px 0 10px;text-transform:uppercase}
+  .hero h2 em{font-style:normal;-webkit-text-stroke:1.5px var(--text);color:transparent}
+  .hero p{color:var(--muted);font-size:14px;max-width:330px;margin:0 auto;line-height:1.55}
+  .field{margin-top:16px;text-align:left}
+  .field label{display:block;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 7px 2px}
+  .input{width:100%;background:#0a0a0c;border:1px solid var(--line);border-radius:11px;color:var(--text);
+    font-family:inherit;font-size:16px;font-weight:500;padding:14px 15px;outline:none;transition:.18s}
+  .input::placeholder{color:var(--muted2)}
+  .input:focus{border-color:var(--silver2);box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+  .input.code{letter-spacing:.22em;text-transform:uppercase;text-align:center;font-size:18px;font-weight:700}
+  .err{color:var(--bad);font-size:13px;margin-top:9px;min-height:18px;font-weight:600}
+  .consent{margin-top:14px}
+  .check{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:12.5px;color:var(--muted);line-height:1.45;font-weight:500}
+  .check input{margin-top:2px;width:16px;height:16px;flex:0 0 auto;accent-color:var(--text);cursor:pointer}
+  .check a{color:var(--text);text-decoration:underline}
+  .btn{width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;letter-spacing:.02em;
+    border-radius:12px;padding:16px;color:#0a0a0c;background:linear-gradient(180deg,var(--silver1),var(--silver2));
+    box-shadow:0 12px 26px -10px rgba(255,255,255,.3);transition:transform .08s,filter .18s;margin-top:18px}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{filter:grayscale(.5) brightness(.7);cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line2);box-shadow:none}
+  .rules{margin-top:22px;border-top:1px solid var(--line);padding-top:18px;text-align:left}
+  .rules h3{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:13px;font-weight:700}
+  .ruleline{display:flex;align-items:center;gap:12px;font-size:13.5px;color:#d5d5da;padding:5px 0}
+  .pts{font-weight:700;font-size:12.5px;color:#0a0a0c;background:linear-gradient(180deg,#fff,#d7d7dc);
+    border-radius:7px;padding:3px 9px;flex:0 0 auto;min-width:56px;text-align:center;font-variant-numeric:tabular-nums}
+  .pts.neg{color:#fff;background:rgba(240,86,108,.18);border:1px solid rgba(240,86,108,.4)}
+  .pts.go{color:#fff;background:rgba(58,214,160,.16);border:1px solid rgba(58,214,160,.4)}
+  .hud{display:flex;gap:10px;margin-bottom:13px}
+  .stat{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:11px 13px}
+  .stat .lab{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .stat .val{font-size:22px;margin-top:3px;line-height:1;font-variant-numeric:tabular-nums;font-weight:700}
+  .stat.streak .val{color:var(--good)}
+  .progressbar{height:4px;background:#0a0a0c;border-radius:99px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line)}
+  .progressbar i{display:block;height:100%;background:linear-gradient(90deg,#fff,#cfcfd6);width:0;transition:width .4s ease}
+  .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .qnum{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qcat{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);border:1px solid var(--line2);border-radius:99px;padding:4px 11px}
+  .qtext{font-size:21px;font-weight:700;line-height:1.28;margin-bottom:20px;letter-spacing:-.01em}
+  .opts{display:flex;flex-direction:column;gap:11px}
+  .opt{text-align:left;background:#0a0a0c;border:1px solid var(--line);border-radius:12px;color:var(--text);
+    font-family:inherit;font-size:15px;font-weight:600;padding:15px 16px;cursor:pointer;display:flex;gap:13px;align-items:center;transition:.15s}
+  .opt .key{font-weight:700;font-size:13px;width:26px;height:26px;flex:0 0 auto;display:grid;place-items:center;border-radius:7px;background:var(--surface2);border:1px solid var(--line2);color:var(--muted)}
+  .opt:not(:disabled):hover{border-color:var(--silver2);transform:translateX(3px)}
+  .opt:not(:disabled):hover .key{color:var(--text);border-color:var(--silver2)}
+  .opt:disabled{cursor:default}
+  .opt.correct{border-color:var(--good);background:rgba(58,214,160,.1)}
+  .opt.correct .key{background:var(--good);color:#04130d;border-color:var(--good)}
+  .opt.wrong{border-color:var(--bad);background:rgba(240,86,108,.1)}
+  .opt.wrong .key{background:var(--bad);color:#1a0307;border-color:var(--bad)}
+  .opt.dim{opacity:.38}
+  .pen-banner{text-align:center;margin-bottom:14px}
+  .pen-banner .kicker{font-size:10.5px;letter-spacing:.3em;color:var(--good);font-weight:700;text-transform:uppercase}
+  .pen-banner h3{font-weight:700;font-size:25px;margin-top:4px;letter-spacing:-.01em}
+  .pen-banner p{color:var(--muted);font-size:13px;margin-top:5px}
+
+  /* ===== ESCENARIO ESTILO FIFA (cámara detrás del cobrador) ===== */
+  .stage{position:relative;width:100%;aspect-ratio:16/9;border-radius:15px;overflow:hidden;border:1px solid var(--line2);
+    user-select:none;touch-action:manipulation;background:#0b1410}
+  .stage .scene{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .aim-x,.aim-y{position:absolute;z-index:8;pointer-events:none}
+  .aim-x{width:2px;height:24%;top:23%;left:0;background:linear-gradient(180deg,rgba(255,255,255,.95),transparent);box-shadow:0 0 9px rgba(255,255,255,.7)}
+  .aim-y{height:2px;width:50%;left:25%;top:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);box-shadow:0 0 9px rgba(255,255,255,.7);opacity:0}
+  .reticle{position:absolute;z-index:8;width:24px;height:24px;margin:-12px 0 0 -12px;opacity:0;transition:opacity .15s;pointer-events:none}
+  .reticle::before,.reticle::after{content:"";position:absolute;background:#fff;box-shadow:0 0 7px rgba(255,255,255,.85)}
+  .reticle::before{left:50%;top:0;bottom:0;width:1.5px;transform:translateX(-50%)}
+  .reticle::after{top:50%;left:0;right:0;height:1.5px;transform:translateY(-50%)}
+  .power{margin-top:14px}
+  .power .plab{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+  .powerbar{height:16px;border-radius:99px;background:#0a0a0c;border:1px solid var(--line);position:relative;overflow:hidden}
+  .powerbar .zone{position:absolute;top:0;bottom:0;background:rgba(58,214,160,.22);border-left:1px solid rgba(58,214,160,.55);border-right:1px solid rgba(58,214,160,.55)}
+  .powerbar .fillp{position:absolute;top:0;bottom:0;left:0;width:0;background:linear-gradient(90deg,var(--bad),#fff)}
+  .pen-hint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:11px;min-height:17px;font-weight:600}
+  .resultline{text-align:center;font-weight:700;font-size:30px;margin:8px 0 2px;letter-spacing:-.01em}
+  .resultline.gol{color:var(--good)}
+  .resultline.fallo{color:var(--bad)}
+  .final{text-align:center;padding:32px 24px 26px}
+  .final .kicker{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;font-weight:700}
+  .final .bigscore{font-size:64px;font-weight:700;line-height:1;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+  .final .pl{color:var(--muted);font-size:13px;font-weight:600}
+  .breakdown{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 4px}
+  .bd{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px}
+  .bd .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+  .bd .l{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+  .board-head{text-align:center;padding:24px 24px 6px}
+  .board-head .kicker{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .board-head h2{font-size:26px;font-weight:700;margin-top:5px;letter-spacing:-.01em}
+  .board-list{padding:10px 16px 6px}
+  .row{display:flex;align-items:center;gap:12px;padding:12px 12px;border-radius:11px;border:1px solid transparent}
+  .row + .row{margin-top:4px}
+  .row .rk{width:26px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;flex:0 0 auto}
+  .row .who{flex:1;min-width:0}
+  .row .who .nm{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .who .meta{font-size:11px;color:var(--muted);margin-top:1px}
+  .row .sc{font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+  .row.me{background:linear-gradient(90deg,rgba(255,255,255,.1),rgba(255,255,255,.02));border-color:var(--line2)}
+  .row.me .rk{color:var(--text)}
+  .row.top1 .rk,.row.top2 .rk,.row.top3 .rk{color:#0a0a0c;background:linear-gradient(180deg,#fff,#cfcfd6);border-radius:7px;height:24px;line-height:24px}
+  .sep{display:flex;align-items:center;gap:10px;color:var(--muted2);font-size:11px;font-weight:700;letter-spacing:.1em;padding:6px 14px}
+  .sep::before,.sep::after{content:"";flex:1;height:1px;background:var(--line)}
+  .badge-demo{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:30;font-size:11px;color:var(--muted2);
+    background:rgba(8,8,10,.85);border:1px solid var(--line);padding:6px 12px;border-radius:99px;backdrop-filter:blur(6px);font-weight:600}
+  .pop{animation:pop .45s cubic-bezier(.2,1.3,.4,1)}
+  @keyframes pop{0%{transform:scale(.93);opacity:0}100%{transform:scale(1);opacity:1}}
+  .shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+  .hidden{display:none!important}
+  /* timer */
+  .stat.timer .val{color:var(--good)}
+  .stat.timer.warn .val{color:var(--bad)}
+  .timerbar{height:6px;background:#0a0a0c;border-radius:99px;overflow:hidden;margin-bottom:8px;border:1px solid var(--line)}
+  .timerbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--good),#9be8c9);transition:width .25s linear,background .3s}
+  .timerbar i.warn{background:linear-gradient(90deg,var(--bad),#ff9aa8)}
+  /* marcador siempre visible en penalti */
+  .penscore{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+  .penscore .lab{font-size:10px;letter-spacing:.2em;color:var(--muted);font-weight:700}
+  .penscore .tnum{font-size:24px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+  /* texto legal mini */
+  .legal-mini{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;line-height:1.5;color:var(--muted2);text-align:left}
+  .legal-mini a{color:var(--muted);text-decoration:underline}
+  /* modales */
+  .modal{position:fixed;inset:0;z-index:50;background:rgba(6,6,9,.78);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:18px}
+  .modal-card{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--line2);border-radius:18px;
+    max-width:480px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;position:relative;box-shadow:var(--shadow)}
+  .modal-x{position:absolute;top:14px;right:14px;background:transparent;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:6px;line-height:1}
+  .modal-title{font-size:20px;font-weight:800;letter-spacing:-.01em}
+  .modal-p{font-size:13.5px;line-height:1.6;color:#c4cfdb;margin-top:10px}
+  .modal-list{margin:14px 0 0;padding-left:20px;font-size:13.5px;line-height:1.6;color:#c4cfdb}
+  .modal-list li{margin-bottom:7px}
+  .modal-pts{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .mp{display:flex;align-items:center;gap:11px;font-size:13px;color:#d5d5da}
+  .prizes{display:flex;flex-direction:column;gap:11px;margin-top:6px}
+  .prize{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px;font-size:13.5px;line-height:1.4;color:#d5d5da}
+  .medal{flex:0 0 auto;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#0a0a0c}
+  .medal.gold{background:linear-gradient(160deg,#ffe9a3,#e8b730)}
+  .medal.silver{background:linear-gradient(160deg,#e8edf2,#aab2bd)}
+  .medal.bronze{background:linear-gradient(160deg,#f0c193,#c47e3e)}
+  /* ===== OVERLAY GOOOL estilo videojuego ===== */
+  .golfx{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0}
+  .golfx span{
+    font-family:var(--font);font-weight:800;font-style:italic;
+    font-size:clamp(54px,13vw,120px);letter-spacing:-.03em;line-height:1;
+    color:#fff;text-transform:uppercase;
+    -webkit-text-stroke:3px #0a0a0c;
+    text-shadow:0 0 28px rgba(58,214,160,.9), 0 6px 0 #16a374, 0 10px 22px rgba(0,0,0,.6);
+    transform:scale(.3) rotate(-7deg);
+  }
+  .golfx.show{animation:golbg .25s ease forwards}
+  .golfx.show span{animation:golpop 1.4s cubic-bezier(.2,1.5,.3,1) forwards}
+  @keyframes golbg{from{opacity:0;background:radial-gradient(circle,rgba(58,214,160,0),transparent)}
+    to{opacity:1;background:radial-gradient(circle at 50% 45%,rgba(58,214,160,.28),transparent 60%)}}
+  @keyframes golpop{
+    0%{transform:scale(.3) rotate(-7deg);opacity:0}
+    18%{transform:scale(1.18) rotate(-7deg);opacity:1}
+    32%{transform:scale(1) rotate(-7deg)}
+    80%{transform:scale(1) rotate(-7deg);opacity:1}
+    100%{transform:scale(1.05) rotate(-7deg);opacity:0}
+  }
+  /* ===== RESPONSIVE ===== */
+  @media (min-width:560px){
+    .hero h2{font-size:46px}
+    .qtext{font-size:23px}
+    .opt{font-size:16px;padding:16px 18px}
+    .stat .val{font-size:26px}
+  }
+  @media (max-width:430px){
+    body{padding:14px 10px 60px}
+    .pad{padding:16px}
+    .hero{padding:24px 18px 20px}
+    .hud{gap:7px}
+    .stat{padding:9px 10px}
+    .stat .val{font-size:18px}
+    .qtext{font-size:18px}
+    .pen-banner h3{font-size:21px}
+  }
+  .flash{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0}
+  .flash.on{background:radial-gradient(circle,rgba(255,255,255,.2),transparent 60%);animation:flash .55s}
+  @keyframes flash{0%{opacity:.8}100%{opacity:0}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brand">
+    <img class="brandlogo" id="brandLogo" alt="Monastery"/>
+    <div class="brandsep"></div>
+    <div><h1>BE A LEGEND</h1><div class="sub">EL RETO</div></div>
+  </div>
+
+  <!-- INTRO -->
+  <section id="screen-intro" class="card">
+    <div class="hero">
+      <div class="kicker">MONASTERY · EL RETO</div>
+      <h2>BE A<br><em>LEGEND</em></h2>
+      <p>Para acceder, registra tu <b>número de pedido</b> y el <b>correo electrónico</b> asociado a tu compra. Con estos datos validaremos tu acceso a la actividad.</p>
+      <button id="how-btn" class="btn ghost" style="margin-top:14px">¿Cómo jugar? · Ver premios</button>
+      <div class="field" style="margin-top:18px"><label for="name">Nombre completo</label><input id="name" class="input" maxlength="40" placeholder="Tu nombre" autocomplete="name" /></div>
+      <div class="field"><label for="email">Correo electrónico</label><input id="email" class="input" type="email" maxlength="60" placeholder="tucorreo@ejemplo.com" autocomplete="email" inputmode="email" /></div>
+      <div class="field"><label for="phone">Celular</label><input id="phone" class="input" type="tel" maxlength="15" placeholder="300 123 4567" autocomplete="tel" inputmode="tel" /></div>
+      <div class="field"><label for="order">Número de pedido</label><input id="order" class="input code" maxlength="20" placeholder="Ej: MST-10245" autocomplete="off" /></div>
+      <div class="field consent"><label class="check"><input type="checkbox" id="consent"/><span>Autorizo el tratamiento de mis datos según la <a href="#" target="_blank" rel="noopener">política de privacidad</a> y acepto los <a href="#" id="terms-link">términos de la actividad</a>.</span></label></div>
+      <div id="intro-err" class="err"></div>
+      <button id="start-btn" class="btn">Entrar a la cancha →</button>
+      <div class="rules"><h3>Reglamento</h3>
+        <div class="ruleline"><span class="pts">+10</span> Respuesta correcta</div>
+        <div class="ruleline"><span class="pts">+10</span> Penalti anotado</div>
+        <div class="ruleline"><span class="pts">+5</span> Bono por acierto doble (responder y anotar)</div>
+        <div class="ruleline"><span class="pts neg">FIN</span> Una respuesta incorrecta termina la partida</div>
+        <div class="ruleline"><span class="pts go">10s</span> Tienes 10 segundos por pregunta</div>
+      </div>
+      <p class="legal-mini">Be a Legend es una actividad independiente creada por Monastery para premiar la destreza y habilidad de sus clientes. No está patrocinada, administrada, avalada ni asociada con el Campeonato Mundial de Fútbol 2026 y no se usa como incentivo de venta. <a href="#" id="terms-link2">Ver términos completos</a>.</p>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="hidden">
+    <div class="hud">
+      <div class="stat score"><div class="lab">Puntaje</div><div class="val tnum" id="hud-score">0</div></div>
+      <div class="stat streak"><div class="lab">Racha</div><div class="val tnum" id="hud-streak">0</div></div>
+      <div class="stat timer" id="timerStat"><div class="lab">Tiempo</div><div class="val tnum" id="hud-timer">10</div></div>
+      <div class="stat"><div class="lab">Pregunta</div><div class="val tnum" id="hud-prog">1/30</div></div>
+    </div>
+    <div class="timerbar"><i id="timerfill"></i></div>
+    <div class="progressbar"><i id="progfill"></i></div>
+    <div class="card pad">
+      <div class="qhead"><span class="qnum" id="qnum">PREGUNTA 01</span><span class="qcat" id="qcat">MUNDIAL</span></div>
+      <div class="qtext" id="qtext">…</div>
+      <div class="opts" id="opts"></div>
+    </div>
+  </section>
+
+  <!-- PENALTI -->
+  <section id="screen-pen" class="hidden">
+    <div class="card pad">
+      <div class="penscore"><span class="lab">PUNTAJE</span><span class="tnum" id="pen-score">0</span></div>
+      <div class="pen-banner"><div class="kicker">¡ACERTASTE! · PENALTI</div><h3 id="pen-title">Tira a portería</h3><p id="pen-sub">Toca para fijar la <b>dirección horizontal</b></p></div>
+
+      <div class="stage" id="stage">
+        <img class="scene" id="sceneImg" alt="penalti"/>
+        <div class="aim-x" id="aimx"></div>
+        <div class="aim-y" id="aimy"></div>
+        <div class="reticle" id="reticle"></div>
+        <div class="golfx" id="golFx"><span>¡GOOOL!</span></div>
+      </div>
+
+      <div class="power hidden" id="powerwrap">
+        <div class="plab"><span>Potencia</span><span>Zona ideal en verde</span></div>
+        <div class="powerbar"><div class="zone" id="pzone"></div><div class="fillp" id="pfill"></div></div>
+      </div>
+      <div id="resultslot"></div>
+      <button id="pen-action" class="btn">Fijar dirección →</button>
+      <div class="pen-hint" id="pen-hint">El arquero es rápido. Busca los ángulos altos.</div>
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="screen-over" class="card hidden">
+    <div class="final">
+      <div class="kicker" id="over-kicker">FIN DE LA PARTIDA</div>
+      <div class="bigscore tnum" id="over-score">0</div>
+      <div class="pl" id="over-name">Jugador</div>
+      <div class="breakdown">
+        <div class="bd"><div class="v tnum" id="bd-correct">0</div><div class="l">Aciertos</div></div>
+        <div class="bd"><div class="v tnum" id="bd-goals">0</div><div class="l">Goles</div></div>
+        <div class="bd"><div class="v tnum" id="bd-bonus">0</div><div class="l">Bonos x2</div></div>
+        <div class="bd"><div class="v tnum" id="bd-streak">0</div><div class="l">Mejor racha</div></div>
+      </div>
+      <button id="toboard-btn" class="btn">Ver tabla de posiciones →</button>
+    </div>
+  </section>
+
+  <!-- TABLA -->
+  <section id="screen-board" class="card hidden">
+    <div class="board-head"><div class="kicker">CLASIFICACIÓN</div><h2>Tabla de posiciones</h2></div>
+    <div class="board-list" id="board-list"></div>
+    <div class="pad" style="padding-top:6px">
+      <button id="share-btn" class="btn">Compartir mi puntaje</button>
+      <button id="again-btn" class="btn ghost">Jugar de nuevo (demo)</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- MODAL: cómo jugar + premios -->
+<div class="modal hidden" id="modal-how">
+  <div class="modal-card">
+    <button class="modal-x" data-close="modal-how">✕</button>
+    <h3 class="modal-title">Cómo jugar</h3>
+    <p class="modal-p">Para acceder, registra tu <b>número de pedido</b> y el <b>correo electrónico</b> asociado a tu compra. Con estos datos validaremos tu acceso a la actividad.</p>
+    <ol class="modal-list">
+      <li>Responde preguntas difíciles de fútbol. Tienes <b>10 segundos</b> por pregunta.</li>
+      <li>Cada respuesta correcta te da puntos y la oportunidad de cobrar un penalti.</li>
+      <li>Si anotas el penalti, sumas más puntos. ¡Acertar pregunta y gol da bono!</li>
+      <li>Una respuesta incorrecta o quedarte sin tiempo termina la partida.</li>
+    </ol>
+    <div class="modal-pts">
+      <div class="mp"><span class="pts">+10</span> Respuesta correcta</div>
+      <div class="mp"><span class="pts">+10</span> Penalti anotado</div>
+      <div class="mp"><span class="pts">+5</span> Bono por acierto doble (responder y anotar)</div>
+      <div class="mp"><span class="pts neg">FIN</span> Respuesta incorrecta o tiempo agotado</div>
+    </div>
+    <h3 class="modal-title" style="margin-top:22px">Premios</h3>
+    <div class="prizes">
+      <div class="prize"><span class="medal gold">1°</span><div><b>Balón autografiado</b> por leyendas del fútbol colombiano.</div></div>
+      <div class="prize"><span class="medal silver">2°</span><div><b>Bono de compra</b> por $1.000.000 COP.</div></div>
+      <div class="prize"><span class="medal bronze">3°</span><div><b>Bono de compra</b> por $500.000 COP.</div></div>
+    </div>
+    <button class="btn" data-close="modal-how" style="margin-top:20px">Entendido</button>
+  </div>
+</div>
+
+<!-- MODAL: términos legales -->
+<div class="modal hidden" id="modal-terms">
+  <div class="modal-card">
+    <button class="modal-x" data-close="modal-terms">✕</button>
+    <h3 class="modal-title">Términos de la actividad</h3>
+    <p class="modal-p">Be a Legend es una actividad independiente creada por Monastery para premiar la destreza y habilidad de sus clientes. <b>No está patrocinada, administrada, avalada ni asociada con el Campeonato Mundial de Fútbol 2026 y no se usa como incentivo de venta.</b></p>
+    <p class="modal-p">La participación requiere validar un número de pedido elegible y el correo asociado a la compra. Cada pedido permite una única participación. Los datos personales se tratan conforme a la Ley 1581 de 2012 (habeas data) y a la política de privacidad de Monastery.</p>
+    <p class="modal-p">Los premios se entregan según la posición final en la tabla de clasificación, conforme a las condiciones publicadas por Monastery. Monastery se reserva el derecho de verificar la autenticidad de las participaciones y de descalificar conductas fraudulentas.</p>
+    <p class="modal-p" style="color:var(--muted2)">* Este texto es un marco general. Antes de publicar, haz que tu equipo legal revise y complete los términos definitivos.</p>
+    <button class="btn" data-close="modal-terms" style="margin-top:18px">Cerrar</button>
+  </div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<script>
+/* ZONAS BACKEND -> // <<< BACKEND */
+
+/* ====================================================================
+   ESCENAS DEL PENALTI (18 fotogramas renderizados, mismo encuadre).
+   Cada partida reproduce la secuencia correcta según el resultado.    */
+const SCENES = ["img/s1.jpg","img/s2.jpg","img/s3.jpg","img/s4.jpg","img/s5.jpg","img/s6.jpg","img/s7.jpg","img/s8.jpg","img/s9.jpg","img/s10.jpg","img/s11.jpg","img/s12.jpg","img/s13.jpg","img/s14.jpg","img/s15.jpg","img/s16.jpg","img/s17.jpg","img/s18.jpg"];
+document.getElementById("brandLogo").src = "img/logo.png";
+
+/* ====================================================================
+   CONEXIÓN BACKEND (Supabase Edge Functions)
+   ==================================================================== */
+const API_VALIDAR = "https://grxyyspzxskppmxlcrwv.supabase.co/functions/v1/validar";
+const API_GUARDAR = "https://grxyyspzxskppmxlcrwv.supabase.co/functions/v1/guardar";
+
+/* Tabla de respaldo: solo se usa si la red falla y no llega la tabla real. */
+const SEED_BOARD=[{name:"Mateo R.",score:195,goles:7},{name:"Valentina G.",score:175,goles:6},{name:"Santiago L.",score:160,goles:5},{name:"Camila T.",score:145,goles:5},{name:"Daniel O.",score:130,goles:4},{name:"Laura P.",score:115,goles:4},{name:"Juan D.",score:100,goles:3},{name:"Sofía V.",score:85,goles:3},{name:"Tomás A.",score:70,goles:2},{name:"Isabela M.",score:55,goles:2}];
+const PTS_RESPUESTA=10,PTS_GOL=10,PTS_BONO=5,MAX_PREGUNTAS=100,PENAL_TERMINA_PARTIDA=false;
+const PREGUNTAS=[
+  {cat:"COLOMBIA",q:"¿En qué Mundial debutó la Selección Colombia?",o:["Chile 1962","Suecia 1958","Inglaterra 1966","México 1970"],c:0},
+  {cat:"COLOMBIA",q:"En 1962, Colombia empató 4-4 remontando ante…",o:["Yugoslavia","Unión Soviética","Italia","Hungría"],c:1},
+  {cat:"COLOMBIA",q:"¿Quién marcó el 'gol del escorpión' ante Inglaterra en Wembley (1995)?",o:["Faustino Asprilla","Carlos Valderrama","René Higuita","Freddy Rincón"],c:2},
+  {cat:"COLOMBIA",q:"En Eliminatorias a USA 94, Colombia goleó a Argentina en el Monumental. ¿Marcador?",o:["3-0","4-1","5-0","2-0"],c:2},
+  {cat:"MUNDIAL",q:"¿Quién ganó la Bota de Oro del Mundial 2014 con 6 goles?",o:["Thomas Müller","James Rodríguez","Lionel Messi","Neymar"],c:1},
+  {cat:"COLOMBIA",q:"La volea de James ante Uruguay en 2014 ganó ¿qué premio?",o:["Premio Puskás","Balón de Oro","Bota de Oro","Premio Fair Play"],c:0},
+  {cat:"COLOMBIA",q:"¿Hasta qué instancia llegó Colombia en el Mundial 2014?",o:["Octavos","Cuartos de final","Semifinal","Final"],c:1},
+  {cat:"COLOMBIA",q:"¿Qué selección eliminó a Colombia en cuartos de 2014?",o:["Países Bajos","Argentina","Brasil","Alemania"],c:2},
+  {cat:"COLOMBIA",q:"En Italia 90, Freddy Rincón empató 1-1 sobre la hora ante…",o:["Yugoslavia","Alemania (RFA)","Camerún","Emiratos"],c:1},
+  {cat:"COLOMBIA",q:"¿Quién fue el capitán 'Pibe' en los Mundiales 90, 94 y 98?",o:["Leonel Álvarez","Carlos Valderrama","Andrés Escobar","Adolfo Valencia"],c:1},
+  {cat:"COLOMBIA",q:"Colombia llegó como favorita pero cayó en fase de grupos en…",o:["USA 1994","Francia 1998","Italia 1990","Chile 1962"],c:0},
+  {cat:"COLOMBIA",q:"James le hizo doblete a Uruguay en octavos de 2014. ¿Marcador?",o:["1-0","2-0","2-1","3-1"],c:1},
+  {cat:"COLOMBIA",q:"Colombia ganó la Copa América 2001 como local. Goles recibidos en todo el torneo:",o:["0","2","3","1"],c:0},
+  {cat:"COLOMBIA",q:"¿Quién marcó el único gol de la final de la Copa América 2001 ante México?",o:["Víctor Aristizábal","Iván Córdoba","Jorge Bolaño","Mario Yepes"],c:1},
+  {cat:"COLOMBIA",q:"El 'Tino' Asprilla brilló a mediados de los 90 en ¿qué club inglés?",o:["Liverpool","Arsenal","Newcastle United","Everton"],c:2},
+  {cat:"COLOMBIA",q:"¿Qué técnico dirigió a Colombia en los Mundiales 2014 y 2018?",o:["Reinaldo Rueda","Néstor Pékerman","Hernán Darío Gómez","Carlos Queiroz"],c:1},
+  {cat:"COLOMBIA",q:"¿En qué ciudad se jugó el histórico 5-0 a Argentina en 1993?",o:["Bogotá","Barranquilla","Buenos Aires","Medellín"],c:2},
+  {cat:"MUNDIAL",q:"¿Qué país ganó el primer Mundial, en 1930?",o:["Brasil","Argentina","Uruguay","Italia"],c:2},
+  {cat:"MUNDIAL",q:"¿Cuántos Mundiales ha ganado Brasil?",o:["4","5","6","3"],c:1},
+  {cat:"MUNDIAL",q:"En el 'Maracanazo' de 1950, Uruguay venció a Brasil. ¿Marcador?",o:["1-0","2-1","3-2","2-0"],c:1},
+  {cat:"MUNDIAL",q:"¿Qué selección ganó el Mundial 2014 en Brasil?",o:["Argentina","Países Bajos","Alemania","Brasil"],c:2},
+  {cat:"MUNDIAL",q:"Alemania goleó a Brasil en semifinal de 2014. ¿Marcador?",o:["5-0","7-1","6-1","4-0"],c:1},
+  {cat:"MUNDIAL",q:"La 'Mano de Dios' de Maradona fue en el Mundial de…",o:["1982","1986","1990","1994"],c:1},
+  {cat:"MUNDIAL",q:"¿Máximo goleador histórico de los Mundiales (16 goles)?",o:["Ronaldo","Miroslav Klose","Gerd Müller","Pelé"],c:1},
+  {cat:"MUNDIAL",q:"Zidane fue expulsado por un cabezazo a Materazzi en la final de…",o:["2002","2006","2010","1998"],c:1},
+  {cat:"MUNDIAL",q:"¿Qué país ganó su primer Mundial en Sudáfrica 2010?",o:["Países Bajos","Alemania","España","Uruguay"],c:2},
+  {cat:"MUNDIAL",q:"¿Quién marcó el gol de la final 2010 (España 1-0 P. Bajos)?",o:["David Villa","Andrés Iniesta","Xavi","Sergio Ramos"],c:1},
+  {cat:"MUNDIAL",q:"¿En qué año Argentina ganó su tercer título mundial?",o:["2018","2022","2014","2010"],c:1},
+  {cat:"MUNDIAL",q:"La final del Mundial 2022 (Argentina-Francia) terminó, antes de penales…",o:["2-2","3-3","3-2","2-1"],c:1},
+  {cat:"MUNDIAL",q:"¿Quién ganó el Balón de Oro del Mundial 2022?",o:["Kylian Mbappé","Lionel Messi","Emiliano Martínez","Julián Álvarez"],c:1},
+  {cat:"MUNDIAL",q:"¿Primera selección sudamericana campeona del mundo en Europa?",o:["Brasil","Argentina","Uruguay","Colombia"],c:0},
+  {cat:"COLOMBIA",q:"¿Qué jugador colombiano es recordado por su 'baile' y su melena en los 90?",o:["Carlos Valderrama","Mauricio Serna","Iván Valenciano","Anthony de Ávila"],c:0}
+];
+
+let S={};
+function nuevoEstado(){return{nombre:"",email:"",celular:"",pedido:"",autoriza:false,orden:[],idx:0,score:0,streak:0,bestStreak:0,aciertos:0,goles:0,bonos:0,aciertoActual:false,guardado:false};}
+function barajar(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+const SCREENS=["intro","quiz","pen","over","board"];
+function show(id){SCREENS.forEach(s=>document.getElementById("screen-"+s).classList.toggle("hidden",s!==id));window.scrollTo({top:0,behavior:"smooth"});}
+
+const nameEl=document.getElementById("name"),emailEl=document.getElementById("email"),
+  phoneEl=document.getElementById("phone"),orderEl=document.getElementById("order"),
+  consentEl=document.getElementById("consent"),errEl=document.getElementById("intro-err");
+[nameEl,emailEl,phoneEl,orderEl].forEach(el=>el.addEventListener("input",()=>errEl.textContent=""));
+
+function fail(msg){errEl.textContent=msg;const sc=document.getElementById("screen-intro");sc.classList.add("shake");setTimeout(()=>sc.classList.remove("shake"),420);}
+
+document.getElementById("start-btn").addEventListener("click",async ()=>{
+  const name=nameEl.value.trim(), email=emailEl.value.trim().toLowerCase(),
+        phone=phoneEl.value.replace(/\s+/g,''), order=orderEl.value.trim();
+  if(!name){return fail("Escribe tu nombre completo.");}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){return fail("Ingresa un correo válido.");}
+  if(!/^\d{7,15}$/.test(phone)){return fail("Ingresa un celular válido (solo números).");}
+  if(!order){return fail("Ingresa el número de pedido de tu compra.");}
+  if(!consentEl.checked){return fail("Debes autorizar el tratamiento de datos para participar.");}
+
+  const btn=document.getElementById("start-btn");
+  btn.disabled=true; btn.textContent="Validando…";
+  try{
+    const res=await fetch(API_VALIDAR,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({pedido:order,email:email})});
+    const out=await res.json();
+    if(!out.ok){ btn.disabled=false; btn.textContent="Entrar a la cancha →"; return fail(out.motivo||"Pedido no válido."); }
+  }catch(e){ btn.disabled=false; btn.textContent="Entrar a la cancha →"; return fail("Sin conexión. Intenta de nuevo."); }
+  btn.disabled=false; btn.textContent="Entrar a la cancha →";
+
+  S=nuevoEstado();S.nombre=name;S.email=email;S.celular=phone;S.pedido=order;S.autoriza=consentEl.checked;
+  S.orden=barajar(PREGUNTAS.map((_,i)=>i)).slice(0,Math.min(MAX_PREGUNTAS,PREGUNTAS.length));
+  show("quiz");pintarPregunta();
+});
+
+const LETRAS=["A","B","C","D"];
+const TIEMPO_PREGUNTA=10;          // segundos por pregunta
+let qTimer=null;
+function detenerTimer(){ if(qTimer){clearInterval(qTimer);qTimer=null;} }
+function arrancarTimer(){
+  detenerTimer();
+  let t=TIEMPO_PREGUNTA;
+  const stat=document.getElementById("timerStat"),val=document.getElementById("hud-timer"),fill=document.getElementById("timerfill");
+  val.textContent=t; stat.classList.remove("warn"); fill.classList.remove("warn");
+  fill.style.transition="none"; fill.style.width="100%"; void fill.offsetWidth; fill.style.transition="width .25s linear, background .3s";
+  qTimer=setInterval(()=>{
+    t--;
+    val.textContent=Math.max(t,0);
+    fill.style.width=(t/TIEMPO_PREGUNTA*100)+"%";
+    if(t<=3){ stat.classList.add("warn"); fill.classList.add("warn"); }
+    if(t<=0){ detenerTimer(); tiempoAgotado(); }
+  },1000);
+}
+function tiempoAgotado(){
+  const cont=document.getElementById("opts");
+  [...cont.children].forEach(c=>{c.disabled=true;if(c.dataset.ok==="1")c.classList.add("correct");});
+  const slot=document.getElementById("qtext");
+  document.getElementById("qcat").textContent="¡TIEMPO!";
+  setTimeout(()=>terminar(false),1300);
+}
+function pintarPregunta(){
+  const p=PREGUNTAS[S.orden[S.idx]];
+  const ind=barajar([0,1,2,3]),opciones=ind.map(i=>({txt:p.o[i],ok:i===p.c}));
+  document.getElementById("hud-score").textContent=S.score;
+  document.getElementById("hud-streak").textContent=S.streak;
+  document.getElementById("hud-prog").textContent=(S.idx+1)+"/"+S.orden.length;
+  document.getElementById("progfill").style.width=(S.idx/S.orden.length*100)+"%";
+  document.getElementById("qnum").textContent="PREGUNTA "+String(S.idx+1).padStart(2,"0");
+  document.getElementById("qcat").textContent=p.cat;
+  const qt=document.getElementById("qtext");qt.textContent=p.q;qt.classList.remove("pop");void qt.offsetWidth;qt.classList.add("pop");
+  const cont=document.getElementById("opts");cont.innerHTML="";
+  opciones.forEach((op,i)=>{const b=document.createElement("button");b.className="opt";b.dataset.ok=op.ok?"1":"0";b.innerHTML='<span class="key">'+LETRAS[i]+'</span><span>'+op.txt+'</span>';b.addEventListener("click",()=>responder(b,op.ok,cont));cont.appendChild(b);});
+  arrancarTimer();
+}
+function responder(btn,ok,cont){
+  detenerTimer();
+  [...cont.children].forEach(c=>c.disabled=true);
+  if(ok){btn.classList.add("correct");S.score+=PTS_RESPUESTA;S.aciertos++;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);S.aciertoActual=true;document.getElementById("hud-score").textContent=S.score;document.getElementById("hud-streak").textContent=S.streak;setTimeout(iniciarPenalti,650);}
+  else{btn.classList.add("wrong");[...cont.children].forEach(c=>{if(c.dataset.ok==="1")c.classList.add("correct");else if(c!==btn)c.classList.add("dim");});setTimeout(()=>terminar(false),1300);}
+}
+
+/* ===== MOTOR PENALTI (reproductor de escenas) ===== */
+const stage=document.getElementById("stage"),sceneImg=document.getElementById("sceneImg"),
+  aimXEl=document.getElementById("aimx"),aimYEl=document.getElementById("aimy"),reticle=document.getElementById("reticle"),
+  powerWrap=document.getElementById("powerwrap"),pfill=document.getElementById("pfill"),pzone=document.getElementById("pzone"),
+  actionBtn=document.getElementById("pen-action"),penSub=document.getElementById("pen-sub"),penHint=document.getElementById("pen-hint"),resultSlot=document.getElementById("resultslot");
+const POW_MIN=0.55,POW_MAX=0.85;
+/* zona apuntable dentro del arco (% del escenario) */
+const GX0=22,GX1=78,GY0=26,GY1=46;
+let pen={},rafId=null;
+
+/* SCENES: las 18 escenas (inyectadas como base64). 1=idle. */
+const SCN = SCENES; // array con data URIs, índice 0 = escena 1
+function setScene(n){ sceneImg.src = SCN[n-1]; }   // n = número de escena (1..18)
+setScene(1);
+
+/* Secuencias por resultado: lista de [escena, ms] que se reproducen en orden.
+   Mapeo según la clasificación de tus 18 láminas:
+     GOL arriba-derecha:   3 -> 2
+     GOL arriba-izquierda: 4 -> 7        (vuela y no llega)
+     GOL centro-alto:      14 -> 16 -> 18(GOOL)  ó 17
+     ATAJADA der:          8 -> 9        (estira y atrapa)
+     ATAJADA izq:          10 -> 12      (estira y atrapa)
+     ATAJADA centro:       14 -> 15? ->  el salto atrapa: usamos 14 (con balón)
+     ATAJADA arriba-izq:   6 -> 5        (vuela y atrapa arriba)
+*/
+const SEQ = {
+  golDer:    [[3,140],[2,900]],
+  golIzq:    [[7,140],[4,40],[5,40]].slice(0,1).concat([[5,40]]) ? [[4,140],[7,40],[6,40]] : null, // placeholder
+  golCentro: [[16,140],[18,1100]],
+  atjDer:    [[8,140],[9,900]],
+  atjIzq:    [[10,120],[11,90],[12,900]],
+  atjCentro: [[15,120],[14,900]],
+  atjArrIzq: [[6,140],[5,900]]
+};
+// limpio golIzq a algo coherente: vuela izquierda (7) sin alcanzar -> balón entra
+SEQ.golIzq = [[7,140],[7,40]];
+
+let seqTimers=[];
+function playSeq(seq, done){
+  seqTimers.forEach(clearTimeout); seqTimers=[];
+  let t=0;
+  seq.forEach(([scn,ms],i)=>{
+    seqTimers.push(setTimeout(()=>setScene(scn), t));
+    t+=ms;
+  });
+  if(done) seqTimers.push(setTimeout(done, t));
+}
+
+function resetStage(){
+  cancelAnimationFrame(rafId); seqTimers.forEach(clearTimeout); seqTimers=[];
+  pen={phase:0,x:.5,y:.55,power:0,dirX:1,dirY:1,dirP:1,tx:0,ty:0,tp:0};
+  setScene(1);
+  aimXEl.style.opacity="1";aimYEl.style.opacity="0";reticle.style.opacity="0";
+  powerWrap.classList.add("hidden");resultSlot.innerHTML="";
+  pzone.style.left=(POW_MIN*100)+"%";pzone.style.width=((POW_MAX-POW_MIN)*100)+"%";pfill.style.width="0%";
+  actionBtn.disabled=false;actionBtn.classList.remove("ghost");
+}
+function iniciarPenalti(){
+  show("pen");document.getElementById("pen-title").textContent="Tira a portería";
+  document.getElementById("pen-score").textContent=S.score;
+  penSub.innerHTML="Toca para fijar la <b>dirección horizontal</b>";penHint.textContent="El arquero es rápido. Busca los ángulos altos.";
+  actionBtn.textContent="Fijar dirección →";resetStage();loopX();
+}
+function loopX(){pen.phase=1;const sp=.018;const step=()=>{pen.x+=pen.dirX*sp;if(pen.x>1){pen.x=1;pen.dirX=-1}if(pen.x<0){pen.x=0;pen.dirX=1}aimXEl.style.left=(GX0+pen.x*(GX1-GX0))+"%";rafId=requestAnimationFrame(step)};rafId=requestAnimationFrame(step);}
+function loopY(){pen.phase=2;aimYEl.style.opacity="1";reticle.style.opacity="1";const sp=.02;const step=()=>{pen.y+=pen.dirY*sp;if(pen.y>1){pen.y=1;pen.dirY=-1}if(pen.y<0){pen.y=0;pen.dirY=1}const top=GY0+pen.y*(GY1-GY0);aimYEl.style.top=top+"%";reticle.style.left=(GX0+pen.tx*(GX1-GX0))+"%";reticle.style.top=top+"%";rafId=requestAnimationFrame(step)};rafId=requestAnimationFrame(step);}
+function loopP(){pen.phase=3;powerWrap.classList.remove("hidden");const sp=.022;const step=()=>{pen.power+=pen.dirP*sp;if(pen.power>1){pen.power=1;pen.dirP=-1}if(pen.power<0){pen.power=0;pen.dirP=1}pfill.style.width=(pen.power*100)+"%";rafId=requestAnimationFrame(step)};rafId=requestAnimationFrame(step);}
+
+actionBtn.addEventListener("click",()=>{
+  if(pen.phase===1){cancelAnimationFrame(rafId);pen.tx=pen.x;penSub.innerHTML="Ahora fija la <b>altura</b>. Los ángulos altos son letales.";actionBtn.textContent="Fijar altura →";loopY();}
+  else if(pen.phase===2){cancelAnimationFrame(rafId);pen.ty=pen.y;aimXEl.style.opacity="0";aimYEl.style.opacity="0";penSub.innerHTML="Mide la <b>potencia</b>. Ni corto ni te pases.";actionBtn.textContent="¡DISPARAR!";loopP();}
+  else if(pen.phase===3){cancelAnimationFrame(rafId);pen.tp=pen.power;actionBtn.disabled=true;disparar();}
+  else if(pen.phase===4){avanzarPregunta();}
+});
+
+function disparar(){
+  aimXEl.style.opacity="0";aimYEl.style.opacity="0";reticle.style.opacity="0";
+  // ¿el arquero ataja? depende de potencia, altura y un componente de azar atado a tu palo
+  const aciertaLado = Math.random() < 0.40;
+  let esGol=false, motivo="";
+  if(pen.tp<0.30){ esGol=false; motivo="¡Tiro flojo! El arquero controla."; }
+  else if(pen.tp>0.94 && pen.ty<0.18){ esGol=false; motivo="¡Por encima del travesaño!"; }
+  else if(aciertaLado && pen.ty>0.28 && pen.tp<0.8){ esGol=false; motivo="¡Atajadón! Adivinó tu palo."; }
+  else { esGol=true; }
+
+  // zona del tiro -> izquierda / centro / derecha  (tx: 0=izq,1=der)
+  const zona = pen.tx<0.38 ? "izq" : (pen.tx>0.62 ? "der" : "centro");
+
+  let seq;
+  if(esGol){
+    seq = zona==="der" ? SEQ.golDer : zona==="izq" ? SEQ.golIzq : SEQ.golCentro;
+  } else {
+    seq = zona==="der" ? SEQ.atjDer : zona==="izq" ? SEQ.atjIzq : SEQ.atjCentro;
+  }
+  // arriba-izquierda con atajada usa la atrapada alta
+  if(!esGol && zona==="izq" && pen.ty<0.30) seq=SEQ.atjArrIzq;
+
+  playSeq(seq, ()=>resolverPenalti(esGol,motivo));
+}
+
+function resolverPenalti(esGol,motivo){
+  if(esGol){
+    S.score+=PTS_GOL;S.goles++;if(S.aciertoActual){S.score+=PTS_BONO;S.bonos++;}
+    document.getElementById("pen-score").textContent=S.score;
+    const fl=document.getElementById("flash");fl.className="flash on";setTimeout(()=>fl.className="flash",560);
+    resultSlot.innerHTML='<div class="resultline gol pop">+'+PTS_GOL+(S.aciertoActual?'&nbsp; +'+PTS_BONO+' bono':'')+'</div>';
+    penHint.textContent=""; mostrarGol();
+  } else {
+    resultSlot.innerHTML='<div class="resultline fallo pop">¡ATAJADO!</div><div class="pen-hint">'+motivo+'</div>';
+    if(PENAL_TERMINA_PARTIDA){setTimeout(()=>terminar(false),1300);return;}
+  }
+  pen.phase=4;actionBtn.textContent="Siguiente pregunta →";actionBtn.disabled=false;actionBtn.classList.add("ghost");
+}
+function mostrarGol(){
+  const g=document.getElementById("golFx");
+  g.classList.remove("show");void g.offsetWidth;g.classList.add("show");
+  setTimeout(()=>g.classList.remove("show"),1500);
+}
+function avanzarPregunta(){S.idx++;S.aciertoActual=false;if(S.idx>=S.orden.length){terminar(true);return;}show("quiz");pintarPregunta();}
+
+async function terminar(completo){
+  show("over");
+  const k=document.getElementById("over-kicker");k.textContent=completo?"¡COMPLETASTE EL RETO!":"FIN DE LA PARTIDA";k.style.color=completo?"var(--good)":"var(--muted)";
+  document.getElementById("over-score").textContent=S.score;document.getElementById("over-name").textContent=S.nombre+" · "+S.pedido;
+  document.getElementById("bd-correct").textContent=S.aciertos;document.getElementById("bd-goals").textContent=S.goles;
+  document.getElementById("bd-bonus").textContent=S.bonos;document.getElementById("bd-streak").textContent=S.bestStreak;
+
+  if(S.guardado) return;            // evitar doble envío
+  S.guardado=true;
+  try{
+    const res=await fetch(API_GUARDAR,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({pedido:S.pedido,nombre:S.nombre,email:S.email,celular:S.celular,
+        score:S.score,aciertos:S.aciertos,goles:S.goles,bonos:S.bonos,mejor_racha:S.bestStreak,autoriza:S.autoriza})});
+    const out=await res.json();
+    if(out.ok && out.tabla) window.__TABLA_REAL=out.tabla;   // tabla real para renderBoard
+  }catch(e){ /* si falla, queda la tabla de respaldo */ }
+}
+document.getElementById("toboard-btn").addEventListener("click",()=>{renderBoard();show("board");});
+function renderBoard(){
+  const fuente=(window.__TABLA_REAL && window.__TABLA_REAL.length)?window.__TABLA_REAL:SEED_BOARD;
+  const yaEstoy=fuente.some(e=>e.name===S.nombre && e.score===S.score);
+  const base=fuente.map(e=>({...e,me:(e.name===S.nombre && e.score===S.score)}));
+  const all=yaEstoy?base:base.concat([{name:S.nombre,score:S.score,goles:S.goles,me:true}]);
+  all.sort((a,b)=>b.score-a.score||b.goles-a.goles);
+  const myRank=all.findIndex(e=>e.me)+1,cont=document.getElementById("board-list");cont.innerHTML="";
+  const rowHTML=(e,rank)=>'<div class="row'+(e.me?" me":"")+(rank<=3?" top"+rank:"")+'"><div class="rk">'+rank+'</div><div class="who"><div class="nm">'+e.name+(e.me?' · tú':'')+'</div><div class="meta">'+e.goles+' goles</div></div><div class="sc">'+e.score+'</div></div>';
+  all.slice(0,8).forEach((e,i)=>cont.insertAdjacentHTML("beforeend",rowHTML(e,i+1)));
+  if(myRank>8){cont.insertAdjacentHTML("beforeend",'<div class="sep">TU POSICIÓN</div>');cont.insertAdjacentHTML("beforeend",rowHTML(all[myRank-1],myRank));}
+}
+document.getElementById("again-btn").addEventListener("click",()=>{detenerTimer();[nameEl,emailEl,phoneEl,orderEl].forEach(el=>el.value="");consentEl.checked=false;errEl.textContent="";show("intro");});
+document.getElementById("share-btn").addEventListener("click",()=>{const txt="¡Hice "+S.score+" puntos en BE A LEGEND de Monastery! "+S.aciertos+" aciertos y "+S.goles+" goles. ¿Me superas?";if(navigator.share){navigator.share({text:txt}).catch(()=>{});}else{navigator.clipboard?.writeText(txt);const b=document.getElementById("share-btn");b.textContent="¡Copiado!";setTimeout(()=>b.textContent="Compartir mi puntaje",1500);}});
+
+/* ===== Modales: cómo jugar / términos ===== */
+function abrirModal(id){document.getElementById(id).classList.remove("hidden");}
+function cerrarModal(id){document.getElementById(id).classList.add("hidden");}
+document.getElementById("how-btn").addEventListener("click",()=>abrirModal("modal-how"));
+document.getElementById("terms-link").addEventListener("click",(e)=>{e.preventDefault();abrirModal("modal-terms");});
+document.getElementById("terms-link2").addEventListener("click",(e)=>{e.preventDefault();abrirModal("modal-terms");});
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>cerrarModal(b.dataset.close)));
+document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",(e)=>{if(e.target===m)m.classList.add("hidden");}));
+</script>
+</body>
+</html>
