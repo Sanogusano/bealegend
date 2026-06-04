@@ -1,0 +1,13 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' https://*.myshopify.com https://monastery.com.co https://*.monastery.com.co https://admin.shopify.com"
+        }
+      ]
+    }
+  ]
+}
